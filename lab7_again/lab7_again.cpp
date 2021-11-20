@@ -16,16 +16,85 @@ struct graf {
 	int size;
 };
 
+struct que_node {
+	int numb;
+	int weight;
+	que_node* next;
+};
+struct quqech {
+	que_node* front;
+	int size;
+};
+
+quqech* create_que() {
+
+	quqech* que = new quqech;
+	que->size = NULL;
+	que->front = NULL;
+	return que;
+}
+void push(quqech* que, int index, int weight) {
+	que_node* newnode = new que_node;
+	newnode->numb = index;
+	newnode->weight = weight;
+	newnode->next = NULL;
+
+	if (que->front == NULL) {
+		que->front = newnode;
+		que->size++;
+		return;
+	}
+	if (que->front->next == NULL) {
+		if (que->front->weight > newnode->weight) {
+			newnode->next = que->front;
+			que->front = newnode;
+		}
+		else
+			que->front->next = newnode;
+		que->size++;
+		return;
+	}
+
+	que_node* temp_prev = NULL;
+	que_node* temp = que->front;
+
+
+	while (temp && temp->weight < newnode->weight) {
+		temp_prev = temp;
+		temp = temp->next;
+	}
+
+	if (temp == que->front) {
+		newnode->next = que->front;
+		que->front = newnode;
+	}
+	else {
+		temp_prev->next = newnode;
+		newnode->next = temp;
+	}
+
+	que->size++;
+}
+void pop(quqech* que) {
+	if (que->size) {
+		que_node* temp = que->front;
+		que->front = que->front->next;
+		que->size--;
+		delete(temp);
+	}
+}
+
 void Google_search(int** a, int num, int* dist, int size) {
-	queue <int> q;
+	quqech* que = create_que();
 	dist[num] = 0;
-	q.push(num);
-	while (!q.empty()) {
-		num = q.front();
-		q.pop();
+	push(que,num,0);
+	while (que->size) {
+		num = que->front->numb;
+		printf("%d ", num);
+		pop(que);
 		for (int i = 0; i < size; i++) {
 			if (a[num][i] > 0 && dist[i] > dist[num] + a[num][i]) {
-				q.push(i);
+				push(que, i, a[num][i]);
 				dist[i] = dist[num] + a[num][i];
 			}
 		}
